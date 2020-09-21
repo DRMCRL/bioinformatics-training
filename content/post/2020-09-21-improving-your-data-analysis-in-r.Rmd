@@ -19,8 +19,6 @@ knitr::opts_chunk$set(
 ```
 
 
-Some useful tips for those finding their way.
-
 # Introduction
 
 The ecosystem of tools and packages for R has seen incredible growth over the last decade.
