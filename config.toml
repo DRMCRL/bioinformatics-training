@@ -1,4 +1,3 @@
-baseURL = "https://drmcrl-bioinformatics-training.netlify.app/"
 languageCode = "en"
 DefaultContentLanguage = "en"
 title = "Bioinformatics Training"
