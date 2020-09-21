@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>tidyverse on Bioinformatics Training</title>
+    <link>/tags/tidyverse/</link>
+    <description>Recent content in tidyverse on Bioinformatics Training</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en</language>
+    <lastBuildDate>Mon, 21 Sep 2020 00:00:00 +0000</lastBuildDate><atom:link href="/tags/tidyverse/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Improving Your Data Analysis in R</title>
+      <link>/post/improving-your-data-analysis-in-r/</link>
+      <pubDate>Mon, 21 Sep 2020 00:00:00 +0000</pubDate>
+      
+      <guid>/post/improving-your-data-analysis-in-r/</guid>
+      <description>Some useful tips for those finding their way.
+Introduction The ecosystem of tools and packages for R has seen incredible growth over the last decade.</description>
+    </item>
+    
+  </channel>
+</rss>

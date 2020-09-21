@@ -1,0 +1,76 @@
+---
+title: Improving Your Data Analysis in R
+author: Steve Pederson
+date: '2020-09-21'
+slug: improving-your-data-analysis-in-r
+Description: ''
+tags: ["R Projects", "R Markdown", "tidyverse"]
+categories: []
+DisableComments: no
+---
+
+Some useful tips for those finding their way.
+
+# Introduction
+
+The ecosystem of tools and packages for R has seen incredible growth over the last decade.
+Whilst many of these enable simpler interaction with R, finding the best way forward can be a challenge.
+Having a seen a few analyses at this point in my career, this session intends to show a few simple strategies for keeping your analysis and data well-organised.
+The aim is that today we can learn enough of the basic strategies to enable you to begin compiling ana analysis which is easy to follow, and eventually publishable.
+
+## Getting Ready
+
+Before we go any further, we'll need to ensure we're working on a system that is ready to go.
+Please make sure you have 
+
+a. A working installation of R. Any version > 3.6 should be suitable, with current and archived versions available from [CRAN](https://cran.r-project.org/)
+b. A working installation of R Studio. The *Desktop version* is the one you're after and the one most of you will already have. The R Studio website tends to have you clicking several times before you find what you're looking for so please use this shortcut to the [download section](https://rstudio.com/products/rstudio/download/#download) if you need to install from scratch.
+
+To make sure you have the packages you need, **please copy and paste the following into your Console**.
+There's no real need to understand this, but essentially we're checking that today's packages are installed, then installing anything that's missing.
+
+```{r}
+req <- c("here", "tidyverse", "rmarkdown", "BiocManager")
+needed <- setdiff(req, rownames(installed.packages()))
+if (length(needed)) {
+    msg <- sprintf("Couldn't find the package %s.\n", needed)
+    message(msg)
+    install.packages(needed)
+}
+```
+
+If you ended up installing packages, you will usually be asked if you wish to update one or more packages.
+If this appears now, just enter `n` as these updates can take a while and we'd like to keep things tight for this session.
+
+# R Projects
+
+Keeping your data well organised is fundamental to any analysis.
+It usually takes minimal effort, but can end up saving considerable time in the long run.
+Additionally, simple strategies for keeping your data organised can go a long way to making your analysis reproducible and transferable between computers or collaborators.
+R Studio enables this to be managed simply via R Projects.
+These are nothing mysterious or magical, but simply provide you with *a framework for avoiding common mistakes.*
+
+Let's create a new R Project to make sure we're all on the same page.
+Using the drop-down menu in R Studio, choose: `File > New R Project`.
+
+(You may be asked if you'd like to save your R workspace at this point, and this decision is up to you.
+If you have an active analysis, then maybe choose yes if that's you're usual approach, if you're already in a new session, then there will be no need.)
+
+This will bring another few options so please choose:
+
+1. New Directory
+2. New Project
+
+This should bring up the following form:
+
+![](https://github.com/UofABioinformaticsHub/transcriptomics_applications/raw/master/practicals/images/NewProject.png)
+On UNIX systems such as Linux or MacOS, your **home** directory is often referred to using the `~` symbol as a shortcut.
+This should also appear on Windows machines, but represents a different directory for each user.
+For me on my laptop, this is `/home/steve` but on my University (SOE) Desktop it's `U:/`.
+For today we'll create our R Project in our home directory, so please enter: `Improving-R` as the `Directory name` in this form, then click <kbd>Create Project</kbd>.
+
+I, and many other bioinformaticians, have a dislike for directories with spaces in the name, so please note I've used the dash to separate the words `Improving` and `R`.
+To ensure we're all using the same directories, please do the same.
+At this point, you should find yourself in a clean R Session.
+
+![](/images/rstudio-empty-project.jpg)
