@@ -6,15 +6,15 @@
     <description>Recent content in Posts on Bioinformatics Training</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en</language>
-    <lastBuildDate>Thu, 23 Jul 2015 21:13:14 -0500</lastBuildDate><atom:link href="/post/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Mon, 21 Sep 2020 00:00:00 +0000</lastBuildDate><atom:link href="/post/index.xml" rel="self" type="application/rss+xml" />
     <item>
-      <title>Hello R Markdown</title>
-      <link>/post/2015-07-23-r-rmarkdown/</link>
-      <pubDate>Thu, 23 Jul 2015 21:13:14 -0500</pubDate>
+      <title>Improving Your Data Analysis in R</title>
+      <link>/post/improving-your-data-analysis-in-r/</link>
+      <pubDate>Mon, 21 Sep 2020 00:00:00 +0000</pubDate>
       
-      <guid>/post/2015-07-23-r-rmarkdown/</guid>
-      <description>R Markdown Testing the rebuild one more time
-summary(cars) ## speed dist ## Min.</description>
+      <guid>/post/improving-your-data-analysis-in-r/</guid>
+      <description>Some useful tips for those finding their way.
+Introduction The ecosystem of tools and packages for R has seen incredible growth over the last decade.</description>
     </item>
     
   </channel>
