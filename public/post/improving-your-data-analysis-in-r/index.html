@@ -557,13 +557,26 @@ Here we can provide the two patterns of three characters separated by the <code>
         sra_id = str_extract(sample, &quot;SRR[0-9]+&quot;),
         tissue = str_extract(sample, &quot;cbc|skm&quot;)
     )</code></pre>
+<p>Finally, we might like to have a better description than cbc or skm to ensure any collaborators understand exactly what we have.</p>
+<pre class="r"><code>samples &lt;- tibble(
+    sample = colnames(counts)
+) %&gt;%
+    dplyr::filter(sample != &quot;Geneid&quot;) %&gt;%
+    dplyr::mutate(
+        sra_id = str_extract(sample, &quot;SRR[0-9]+&quot;),
+        tissue = str_extract(sample, &quot;cbc|skm&quot;),
+        description = case_when(
+            tissue == &quot;cbc&quot; ~ &quot;Cerebellar Cortex&quot;,
+            tissue == &quot;skm&quot; ~ &quot;Skeletal Muscle&quot;
+        )
+    )</code></pre>
 <p>Now we have our metadata, it might be a good idea to summarise this in the plain text parts of your R Markdown and present a table.
 The package <code>pander</code> is very helpful for generating basic html tables.</p>
 <div id="add-pander" class="action">
 <p>Add <code>library(pander)</code> to the packages chunk and execute the chunk to make sure it’s loaded into your interactive session.</p>
 </div>
 <pre class="r"><code>samples %&gt;% 
-    group_by(tissue) %&gt;%
+    group_by(tissue, description) %&gt;%
     tally() %&gt;%
     pander(caption = &quot;Experimental groups and sample size&quot;)</code></pre>
 <p>Whilst this clearly isn’t the full setup for an RNA-Seq experiment, these are pretty close to my first steps.</p>

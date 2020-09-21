@@ -601,6 +601,24 @@ samples <- tibble(
     )
 ```
 
+Finally, we might like to have a better description than cbc or skm to ensure any collaborators understand exactly what we have.
+
+```{r}
+samples <- tibble(
+    sample = colnames(counts)
+) %>%
+    dplyr::filter(sample != "Geneid") %>%
+    dplyr::mutate(
+        sra_id = str_extract(sample, "SRR[0-9]+"),
+        tissue = str_extract(sample, "cbc|skm"),
+        description = case_when(
+            tissue == "cbc" ~ "Cerebellar Cortex",
+            tissue == "skm" ~ "Skeletal Muscle"
+        )
+    )
+```
+
+
 Now we have our metadata, it might be a good idea to summarise this in the plain text parts of your R Markdown and present a table.
 The package `pander` is very helpful for generating basic html tables.
 
@@ -610,7 +628,7 @@ Add `library(pander)` to the packages chunk and execute the chunk to make sure i
 
 ```{r}
 samples %>% 
-    group_by(tissue) %>%
+    group_by(tissue, description) %>%
     tally() %>%
     pander(caption = "Experimental groups and sample size")
 ```
