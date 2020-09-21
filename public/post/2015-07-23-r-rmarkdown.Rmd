@@ -12,7 +12,7 @@ knitr::opts_chunk$set(collapse = TRUE)
 
 # R Markdown
 
-Testing the rebuild
+Testing the rebuild one more time
 
 ```{r cars}
 summary(cars)
