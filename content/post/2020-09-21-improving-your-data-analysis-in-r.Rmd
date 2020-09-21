@@ -9,6 +9,16 @@ categories: []
 DisableComments: no
 ---
 
+```{r setup, echo=FALSE}
+knitr::opts_chunk$set(
+    eval = FALSE,
+    message = FALSE, 
+    warning = FALSE, 
+    results = "hide"
+)
+```
+
+
 Some useful tips for those finding their way.
 
 # Introduction
@@ -16,31 +26,55 @@ Some useful tips for those finding their way.
 The ecosystem of tools and packages for R has seen incredible growth over the last decade.
 Whilst many of these enable simpler interaction with R, finding the best way forward can be a challenge.
 Having a seen a few analyses at this point in my career, this session intends to show a few simple strategies for keeping your analysis and data well-organised.
-The aim is that today we can learn enough of the basic strategies to enable you to begin compiling ana analysis which is easy to follow, and eventually publishable.
+The aim is that today we can learn enough of the basic strategies to enable you to begin compiling an analysis which is easy to follow, and eventually publishable.
+
+For today, there is a combination of reading and actions.
+I've encased the actions in their own blocks to help make it clear.
+
+::: {#define-actions .action}
+This means you will need to do something
+:::
+
+Alternatively, R code to be executed will be shown in a "code chunk" like so
+
+```{r 1plus1, eval = FALSE}
+1 + 1
+```
+
 
 ## Getting Ready
 
 Before we go any further, we'll need to ensure we're working on a system that is ready to go.
 Please make sure you have 
 
-a. A working installation of R. Any version > 3.6 should be suitable, with current and archived versions available from [CRAN](https://cran.r-project.org/)
-b. A working installation of R Studio. The *Desktop version* is the one you're after and the one most of you will already have. The R Studio website tends to have you clicking several times before you find what you're looking for so please use this shortcut to the [download section](https://rstudio.com/products/rstudio/download/#download) if you need to install from scratch.
+1. A working installation of R. Any version > 3.6 should be suitable, with current and archived versions available from [CRAN](https://cran.r-project.org/)
+2. A working installation of R Studio. The *Desktop version* is the one you're after and the one most of you will already have. The R Studio website tends to have you clicking several times before you find what you're looking for so please use this shortcut to the [download section](https://rstudio.com/products/rstudio/download/#download) if you need to install from scratch.
+
+
+
+::: {#check-packages .action}
 
 To make sure you have the packages you need, **please copy and paste the following into your Console**.
 There's no real need to understand this, but essentially we're checking that today's packages are installed, then installing anything that's missing.
 
-```{r}
+:::
+
+```{r packages}
 req <- c("here", "tidyverse", "rmarkdown", "BiocManager")
 needed <- setdiff(req, rownames(installed.packages()))
 if (length(needed)) {
-    msg <- sprintf("Couldn't find the package %s.\n", needed)
+    msg <- sprintf("Couldn't find the package %s. Preparing to install.\n", needed)
     message(msg)
     install.packages(needed)
 }
 ```
 
+::: {#dont-update .action}
+
 If you ended up installing packages, you will usually be asked if you wish to update one or more packages.
 If this appears now, just enter `n` as these updates can take a while and we'd like to keep things tight for this session.
+
+:::
 
 # R Projects
 
@@ -50,27 +84,508 @@ Additionally, simple strategies for keeping your data organised can go a long wa
 R Studio enables this to be managed simply via R Projects.
 These are nothing mysterious or magical, but simply provide you with *a framework for avoiding common mistakes.*
 
+::: {#new-project .action}
 Let's create a new R Project to make sure we're all on the same page.
 Using the drop-down menu in R Studio, choose: `File > New R Project`.
+:::
 
-(You may be asked if you'd like to save your R workspace at this point, and this decision is up to you.
-If you have an active analysis, then maybe choose yes if that's you're usual approach, if you're already in a new session, then there will be no need.)
+You may be asked if you'd like to save your R workspace at this point, and this decision is up to you.
+If you have an active analysis, then maybe choose yes if that's you're usual approach, if you're already in a new session, then there will be no need.
 
+::: {#finish-project-setup .action}
 This will bring another few options so please choose:
 
 1. New Directory
 2. New Project
+:::
+
 
 This should bring up the following form:
 
 ![](https://github.com/UofABioinformaticsHub/transcriptomics_applications/raw/master/practicals/images/NewProject.png)
+
 On UNIX systems such as Linux or MacOS, your **home** directory is often referred to using the `~` symbol as a shortcut.
 This should also appear on Windows machines, but represents a different directory for each user.
 For me on my laptop, this is `/home/steve` but on my University (SOE) Desktop it's `U:/`.
-For today we'll create our R Project in our home directory, so please enter: `Improving-R` as the `Directory name` in this form, then click <kbd>Create Project</kbd>.
+For today we'll create our R Project in our home directory.
 
-I, and many other bioinformaticians, have a dislike for directories with spaces in the name, so please note I've used the dash to separate the words `Improving` and `R`.
-To ensure we're all using the same directories, please do the same.
+::: {#name-project .action}
+Please enter: "`Improving-R`" as the `Directory name` in this form, then click <kbd>Create Project</kbd>.
+:::
+
+I, along with most other bioinformaticians, have a dislike for directories with spaces in the name, so please note I've used the dash to separate the words `Improving` and `R`.
+To ensure we're all using the same directories, *please do the same*.
 At this point, you should find yourself in a clean R Session.
 
 ![](/images/rstudio-empty-project.jpg)
+
+## What is an R Project
+
+When we initialised our R Project, the file `Improving-R.Rproj` was created.
+This enables R Studio to define settings like whether you save the Workspace or not.
+This file also gives you something you can click-on, and the resultant R Studio session will *always open in the project directory!*
+If you have multiple analyses, you simply create a new project for each analysis and treat the main project directory as the parent (or root) directory for the entire analysis.
+This way, you can *keep each analysis separate and well-organised.*
+Beyond this file's existence, we're not really going to look at it any further.
+
+If you have multiple projects on your computer, R Studio will also keep a list of these projects in a drop-down menu at the top-right of your session.
+(ADAPT doesn't seem to do this though).
+To jump between projects, you simply select the one you want to open and you're there.
+By default, both R and the **Files** pane will open in your project's root directory.
+
+## Structuring an Analysis
+
+We can easily generate and work with large numbers of files, so organising your directory can be very advantageous.
+One useful trick might be to create a `data` directory within each R project, and use this to hold the data-files you're analysing for the project.
+Depending on the analysis, you may have multiple subdirectories within this.
+An example view of one of my analyses currently underway on `phoenix` is shown below.
+
+```
+data/
+├── aligned
+│   ├── bam
+│   └── dedup_bam
+├── raw
+│   ├── fastq
+│   ├── FastQC
+│   └── SampleSheet.csv
+└── trimmed
+    ├── discarded
+    ├── fastq
+    ├── FastQC
+    └── logs
+```
+
+In the above, I have all data files from the start of the analysis (`data/raw/fastq`) to the final alignments I'm working with (`data/aligned/dedup_bam`).
+Many intermediate files (e.g. FastQC reports, discarded reads and trimming logs) are also in an easy to find location, but are out of the way of my main working directory (i.e. project folder).
+A good trick may be to have a separate directory for bam files, another for bed files, another for RNA-Seq counts etc..
+It's easy to underestimate how beneficial this can be.
+**When you you're not drowning in files, you can feel far more in control of your analysis.**
+
+We're going to keep everything pretty simple today, but let's create a `data` directory within your project root directory.
+
+::: {#create-data-directory .action}
+Look in the **Files** pane and click on the ![](/images/NewFolder.png) icon at the top-left of this pane.
+Name the directory `data`.
+
+Save [this file](https://raw.githubusercontent.com/UofABioinformaticsHub/Spring_Into_Bioinformatics/master/Day_2/data/2_alignedData/featureCounts/counts.out) into your newly created directory.
+:::
+
+The file we've just downloaded is the output of an example analysis comparing skeletal muscle and brain samples from mouse, using RNA-Seq.
+This is the exact output generate by the tool `featureCounts`, which you may be familiar with.
+
+## Using `here::here()` to Locate Files
+
+Knowing where we are, and which directory `R` is currently looking is also an important concept.
+The most classic way of seeing which directory we are in us to use the function `getwd()`
+
+```{r getwd}
+getwd()
+```
+
+Everyone's output from this function will be different, but the final directory should be `Improving-R`.
+This is where `R` is currently looking on your hard-drive.
+If you export a plot, this is where R will write it by default.
+Likewise, if you want to import any data, this is where `R` will be looking.
+
+We can check the contents of this directory using.
+
+```{r list.files}
+list.files()
+```
+
+We can also list the files in the `data` directory
+
+```{r list.files.data, eval=FALSE}
+list.files("data")
+```
+
+Importantly, we were only able to see inside the `data` directory, because it was in our current folder.
+We can see it **relative** to where `R` is currently looking.
+Formally, this is known in computational circles as a **relative path**.
+
+We can change where `R` is looking by using the **Files** pane.
+Let's tell `R` to look in the `data` directory by default.
+
+::: {#change-wd .action}
+In the **Files** pane, click the `data` directory icon to look in the directory.
+Then click on the `More` drop-down menu in the **Files** pane, finally selecting `Set As Working Directory`.
+:::
+
+This has set your R session to now be looking the `data` directory.
+Try the following commands and see what you get.
+
+```{r list.files.from.data}
+getwd()
+list.files()
+list.files("data")
+```
+
+Hopefully you can see the differences in this output to what we had before.
+Knowing where `R` is looking, and knowing where your data is located is a fundamental step that many people either overlook, or get confused by.
+Now let's return to our project root directory.
+
+::: {#back2-root .action}
+In the top-right of the **Files** pane, click the small R-project symbol, and this will return you to the project root directory.
+Once you're there, use the `More` drop-down menu to set this back to be the Working Directory.
+Double-check, using `getwd()` to make sure your `R` session is looking in the correct location.
+:::
+
+An alternative strategy for making sure you can find your files is the use the function `here()`, provided in the package `here`.
+As a few packages have a function called `here()`, I tend to call this directly from the package using the command `here::here()`.
+This syntax is defined as `packageName::functionName()` and tells R explicitly to use the function `here()` from the `here` package.
+This is also known as using the package **Namespace** to call the function.
+It's a good way to manage things when using a function which has been defined by multiple packages, such as `rename()` or `filter()`.
+
+```{r here::here}
+here::here()
+```
+
+This function *looks in your current directory for an .Rproj file and returns that directory.*
+If no file file is found, it steps up a directory and keeps going recursively until the system root is encountered.
+When working within an R project, this is an excellent, but deceptively simple way to always look within project subdirectories.
+
+```{r demo_here::here}
+here::here("data")
+list.files(here::here())
+list.files(here::here("data"))
+```
+
+Notice that in the above lines of code, we've looked inside different folders just like we did earlier using `list.files()` and `list.files("data")`.
+However, this time we did it using our R Project file as the reference point.
+*It's still a relative path, but it's anchored to a file.*
+
+This is a very useful trick as your analyses grow more complicated, and in particular, using this strategy makes using R Markdown far more straight-forward.
+
+# R Markdown
+
+Many of the analyses I've seen use the classic `R` script to store your commands.
+These are just plain text files which we commonly add the suffix `.R` to, and contain commands to be executed within the R Console.
+Any plain text we generally comment out using the `#` symbol, which tells `R` to ignore the rest of the line.
+A far more flexible, and increasingly common strategy is to use `R Markdown` to perform an analysis, as this allows the combination of formatted text using paragraphs, along with embedded `R` code.
+The most common approach is to have descriptions and methods written in formatted text, and the code written in "code chunks".
+We can then compile the document from `R Markdown` to html, a pdf, or even a MS Word/PowerPoint document.
+Today we'll stick with html.
+
+The `R` code is always executed when you compile the document, so this can quickly alert you to any problems in your code.
+Let's form a simple document and get familiar with the format.
+
+## Creating an R Markdown Document
+
+Every time we create a new R Markdown document, R Studio gives us an example one as a starting template.
+I usually delete nearly all of this immediately, but for us today it's going to be most helpful.
+
+::: {#open-r-markdown .action}
+Using the main drop-down menu, choose: `File > New File > R Markdown` and a new dialog box will appear.
+:::
+
+![](https://github.com/UofABioinformaticsHub/transcriptomics_applications/raw/master/practicals/images/NewRMarkdown.png)
+
+::: {#open-r-markdown2 .action}
+Change the title to something like "RMarkdown Tutorial" and add your name as the Author.
+Click `OK`.
+Save the file as RMarkdownTutorial.Rmd
+
+By default this should have been saved into the project root directory, so check the **Files** pane to make sure everything is as it should be.
+
+Just to make things a little easier today, click the settings icon next to the **Knit** button at the top of the RMarkdown document, and check the `Preview in Viewer Pane` menu item.
+:::
+
+This last step will make sure the output shows in the **Viewer** tab, within the lower-right pane of R Studio.
+
+::: {#click-knit .action}
+Click the **Knit** button and an html document will appear in the **Viewer** Pane
+:::
+
+## Understanding R Markdown
+
+R Markdown is an extension of generic Markdown that is able to execute R code, as well as using the standard formatting options of Markdown.
+This has now become so powerful and flexible that people literally write books using R Markdown.
+As we go through the different features of this document, we'll try and denote which is generic markdown, and which features are specific to R Markdown.
+
+### The YAML header
+
+The first 6 lines are the header, which uses a syntax known as YAML.
+In short, each field is named and a semi-colon denotes the end of the name and the start of the value.
+YAML is extremely common, can be used with Markdown and the deeper you go, the more you learn about it.
+For today, there's not much to learn besides noticing the `title:`, `author:` and other fields.
+You edit these freely if you care, however, the starting and ending `---` lines are vital and denote the region of this file constituting the header.
+
+### Code Chunks
+
+Lines 8-10 are a "code chunk".
+Code chunks always start with `` ```{r} `` and are closed again with another `` ``` ``.
+Anything between these is code that will be executed.
+This first chunk is very uninteresting, but the one starting on line 18 is far more relevant.
+This chunk prints a summary of the object `cars` which lives by default as a hidden `R` object in every session.
+
+Notice the word `cars` within the chunk header.
+This is a chunk name and naming chunks is extremely good practice.
+We can use these to navigate documents using the menu on the right.
+
+::: {#nav-menu .action}
+Click the staggered-text symbol (![](https://github.com/UofABioinformaticsHub/transcriptomics_applications/raw/master/practicals/images/staggeredText.png)) at the very top-right of the Rmd file and a menu will open.
+Initially, only the section headers (denoted in the document with `##`) may appear.
+If so: `Tools > Global Options > R Markdown` then going to the `Show in document outine` drop-down menu, select `Sections and All Chunks`.
+Click OK and the chunk names will also appear
+:::
+
+Clearly, this is a trivial document and careful use of chunk names can be extremely helpful with longer analyses.
+
+Chunks can be executed interactively in your Console by clicking the green "play" arrow in each chunk.
+A shortcut for the less click-inclined is to use <kbd>Ctrl</kbd>+<kbd>Alt</kbd>+<kbd>C</kbd> when the cursor is inside the chunk.
+<kbd>Ctrl</kbd>+<kbd>Alt</kbd>+<kbd>N</kbd> moves to and executes the next chunk, which can be very helpful for stepping through an analysis.
+
+### Chunk Headers
+
+The header line of chunks can contain many arguments with the one being demonstrated in line 26 being `echo = FALSE`.
+This hides the R code in that chunk, and if you look at the compiled document you'll see the plot shown, but with no code visible.
+This is quite different to the `cars` chunk where we can see both the code and the output.
+
+::: {#add-pressure-caption .action}
+Inside the `pressure` chunk header, add a comma after `echo=FALSE`, then add `fig.cap = "Plot showing the relationship between Temperature and Pressure."` and recompile the document using the **Knit** button.
+:::
+
+Notice that a figure caption has now been placed under the plot.
+
+### Formatting Using Markdown
+
+The standard markdown formatting for section headers is to use the hash symbol (`#`).
+Increasing the number of hashes, moves from Title (`#`) to Section (`##`) to Sub-Section (`###`) and so on.
+*This is very important for users of R Scripts.*
+
+Inside a code chunk, you can still write comments using any number of `#`, whilst outside of code chunks, these denote headings.
+The text outside of code chunks (or any inline code) is not executed, so there is no need for comments in the main body of the text.
+
+Beyond section headers, formatting tricks for Markdown can be see in the R Markdown guide.
+
+::: {#markdown-guide .action}
+To open the R Markdown guide: `Help > Markdown Quick Reference`
+:::
+
+Here you can see how to make a word render in italics or bold (see the word Knit on line 16 of your R Markdown).
+Additionally, this shows you how to create bullet points, insert images etc, etc.
+Anything which doesn't execute `R` code here is generic Markdown.
+
+::: {#try-markdown .action}
+Try adding some random changes to your RMarkdown document and see how fancy you can make it.
+:::
+
+# Putting It Together
+
+::: {#clear-data .action}
+Once you've had a play with the file, delete everything from line 12 onwards, leaving just the YAML header and the `setup` chunk
+:::
+
+Now we're going to load our counts using R Markdown and perform some basic text manipulation.
+
+## Setting Up an R Markdown Analysis
+
+We're going to load our counts using the function `read_tsv()` provided in the package `readr` as part of the tidyverse.
+The `tidyverse` is really a simple wrapper which installs several packages when used inside `install.packages("tidyverse")` and when called inside `library(tidyverse)`, loads the packages `ggplot2`, `dplyr`, `stringr`, `readr` and a few others which we'll ignore today.
+
+::: {#packages .action}
+I like to load my packages at the top of every R Markdown file, so directly under the `setup` chunk, form a new one by clicking the **Insert** icon at the top-right.
+Name the chunk `packages`.
+
+Inside the chunk, type `library(tidyverse)` and recompile the document.
+:::
+
+This is a very "chatty" command which prints our some "informative" messages.
+Frankly, no-one cares, so let's hide these.
+
+::: {#hide-messages .action}
+Inside the `setup` chunk, place a comma after `echo = TRUE` and add the command: `message = FALSE`.
+
+Recompile the document.
+:::
+
+These options inside `knitr::opts_chunk$set()` set the default behaviour of every chunk, and these are passed to every subsequent chunk header.
+These options can be over-ruled in any chunk header, but sometimes it's just easier to set them here.
+We've now told `R` to hide "informative messages", because they're usually not.
+
+## Loading Data
+
+I prefer using the `tidyverse` (i.e. `readr`) functions for loading data for a few reasons.
+
+- Informative messages while parsing (whoops)
+- No conversion of strings to factors
+- The imported data is a `tibble` which are like `data.frame` objects, but just a little nicer to work with (mostly)
+
+The main functions are `read_csv()` and `read_tsv()`
+
+Data from `featureCounts` is tab-delimited, with the first line being a header row.
+We can have a sneak peak using the `readLines()` function.
+
+```{r}
+fl <- "data/counts.out"
+readLines(fl, n = 3)
+```
+
+We can see here that:
+
+- The first line starts with a comment symbol (`#`) and contains the executed code
+- The second line is the column headers
+- The third line contains the counts for the gene ENSMUSG00000102693
+
+You can see the tab-delimiter as `\t` in every line, confirming that `read_tsv()` is the best option.
+Replace the `readLines(...)` line with the following
+
+```{r}
+counts <- read_tsv(fl, comment = "#")
+```
+
+Notice the informative messages!
+These are actually helpful when running interactively, but aren't required when compiling the document.
+
+::: {#recompile .action}
+Re-compile the document to check the messages are hidden
+:::
+
+Most of you will have seen the chunk output appear "inline" in your R Markdown document.
+Many people prefer this (e.g. all of my PhD Students), but I don't.
+I prefer all output to be in the Console, and all plots to be in the **Plots** pane.
+You can change this by checking "Chunk Output in Console" in the settings menu for each R Markdown document.
+This can also be set using Global Options if you prefer.
+
+## Organising Your Data
+
+So far, we've just loaded a file, but in reality many analyses will become complicated with numerous R Markdown files.
+It might be a sensible idea to put them in their own folder, so let's form a directory called `analysis` in our project root.
+
+::: {#move-rmarkdown .action}
+Close the RMarkdown and move it into the `analysis` folder.
+Try to compile and see what happens.
+:::
+
+This is where `here::here()` becomes helpful again.
+By default, R Markdown documents compile from the folder they are located in, so if we change the line `fl <- "data/counts.out"` to `fl <- here::here("data/counts.out")`, we'll have solved the problem.
+This is the best way to approach file paths in R.
+
+::: {#summary .category}
+- Always work in an R Project
+- Always organise your directories in a sensible manner
+- Always reference the location of files using `here::here()`
+:::
+
+# Data Cleaning
+
+Returning to our data, this data is a little messy:
+
+- We don't care about the `Chr`, `Start`, `End` and `Strand` columns
+- Column names are cumbersome complete paths to the original `bam` files.
+
+Let's tidy those up, which involves some text and data manipulation.
+To select specific columns, we can use the function `select()` from the package `dplyr`, which is part of the core `tidyverse`.
+Unfortunately many packages have a function called `select()`, so I always call this explicitly from `dplyr`.
+
+
+In the code below (as a simple example), we're only selecting the column called `Geneid`
+
+```{r}
+dplyr::select(counts, Geneid)
+```
+
+`dplyr` has a series of helper functions: `starts_with()`, `contains()`, `any_of()`, `ends_with()` and `everything()` being some of the most useful.
+Now we'll add every column that finishes with "bam".
+
+```{r}
+dplyr::select(counts, Geneid, ends_with("bam"))
+```
+
+This is essentially what we need, so we could add the following line to our import chunk.
+
+```{r}
+counts <- dplyr::select(counts, Geneid, ends_with("bam"))
+```
+
+**Alternatively, we can use the `magrittr` (i.e. the pipe) to pass the output of one function to the input of another.**
+
+```{r}
+fl <- here::here("data/counts.out")
+counts <- read_tsv(fl, comment = "#") %>%
+    dplyr::select(Geneid, ends_with("bam"))
+```
+
+This takes the output of `read_tsv()` (i.e. the tibble returned from the import) and passes it to the input of `dplyr::select()`.
+This way we've removed the irrelevant columns immediately on import.
+*I personally prefer performing all modifications at the start so everything is done in a single, clean process and we don't end up with half-edited versions of objects floating around.*
+
+## Renaming columns
+
+We could now individually rename the columns using the function `dplyr::rename()`, but there's been an enhancement where we can use `rename_all()`.
+Let's test it on the data we have as it stands.
+
+```{r}
+dplyr::rename_all(counts, basename)
+```
+
+This will call the function `basename()` on all columns, and we can see this in action separately.
+
+```{r}
+basename(colnames(counts))
+```
+
+What `basename()` does is to remove any file paths from the front of the character strings defined as column names.
+We can now add this directly as part of the import!
+
+```{r}
+fl <- here::here("data/counts.out")
+counts <- read_tsv(fl, comment = "#") %>%
+    dplyr::select(Geneid, ends_with("bam")) %>%
+    dplyr::rename_all(basename)
+```
+
+## Obtaining Sample Metadata
+
+Now we have reasonable looking data, we might like to form a metadata object for our samples, and doing this on the imported object can strongly beneficial as everything will be in the same order.
+
+```{r}
+samples <- tibble(
+    sample = colnames(counts)
+) %>%
+    dplyr::filter(sample != "Geneid") 
+```
+
+This has created a `tibble` with a single column called sample, which exactly matches the column names in our `counts` object.
+Clearly, this is only the first step and two other pieces of information we may be interested in are the SRA run id, and the source tissue.
+
+First, we'll have a look at the function `str_extract()` which comes from the core `tidyverse` package `stringr` and requires a little knowledge of *regular expressions*.
+In the following, we're defining a pattern which `str_extract()` will look for and "extract" from the string we provide.
+
+```{r}
+str_extract(colnames(counts), "SRR[0-9]+")
+```
+
+What we've requested here is the pattern "SRR" exactly, followed by a number (`[0-9]`), and we've allowed any number of numbers by adding the plus symbol.
+Once the search hits a character that's not a number the pattern will no longer match, and only the matching portion will be returned.
+
+An alternative is to look within strings for specific 'words' or longer patterns, as alternatives.
+Here we can provide the two patterns of three characters separated by the `|` which often represents `OR` in searches.
+
+```{r}
+str_extract(colnames(counts), "cbc|skm")
+```
+
+Now we've seen how `str_extract` works, we can add two informative columns to our sample metadata using the `mutate()` function from `dplyr`.
+
+```{r}
+samples <- tibble(
+    sample = colnames(counts)
+) %>%
+    dplyr::filter(sample != "Geneid") %>%
+    dplyr::mutate(
+        sra_id = str_extract(sample, "SRR[0-9]+"),
+        tissue = str_extract(sample, "cbc|skm")
+    )
+```
+
+Whilst this isn't the full setup for an RNA-Seq experiment, these are pretty close to my first steps.
+
+:::{#loading-summary .category}
+
+- Load and clean the data in the same process **at the beginning**
+- Setup the sample metadata directly from the related larger data object, if applicable. Also perform this at the beginning of a workflow
+
+:::
+
