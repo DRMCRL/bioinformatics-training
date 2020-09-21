@@ -37,7 +37,7 @@ Please make sure you have</p>
 <p>To make sure you have the packages you need, <strong>please copy and paste the following into your Console</strong>.
 There’s no real need to understand this, but essentially we’re checking that today’s packages are installed, then installing anything that’s missing.</p>
 </div>
-<pre class="r"><code>req &lt;- c(&quot;here&quot;, &quot;tidyverse&quot;, &quot;rmarkdown&quot;, &quot;BiocManager&quot;)
+<pre class="r"><code>req &lt;- c(&quot;here&quot;, &quot;tidyverse&quot;, &quot;rmarkdown&quot;, &quot;pander&quot;)
 needed &lt;- setdiff(req, rownames(installed.packages()))
 if (length(needed)) {
     msg &lt;- sprintf(&quot;Couldn&#39;t find the package %s. Preparing to install.\n&quot;, needed)
@@ -335,6 +335,22 @@ I prefer all output to be in the Console, and all plots to be in the <strong>Plo
 You can change this by checking “Chunk Output in Console” in the settings menu for each R Markdown document.
 This can also be set using Global Options if you prefer.</p>
 </div>
+<div id="adding-plain-text" class="section level2">
+<h2>Adding Plain Text</h2>
+<p>Now that we’ve loaded a file, a good plan might be to explain what we’ve done and provide some informative output.</p>
+<div id="add-text" class="action">
+<p>After your data import chunk, add:</p>
+<blockquote>
+<p>Counts were loaded as a <code>tibble</code> using <code>read_tsv()</code>, for 55450 genes and 8 samples.</p>
+</blockquote>
+</div>
+<p>These values were obtained by me manually running <code>dim(counts)</code> on the object while I wrote this, but we can obtain this data directly from our object.</p>
+<div id="start-inline-code" class="action">
+<p>Change the number 55450 to <code>`r nrow(counts)`</code> and recompile.</p>
+<p>Now change the number 8 to <code>`r ncol(counts) - 1`</code></p>
+</div>
+<p>If we really wanted to format that nicely, we can add the package <code>library(scales)</code> to the <code>packages</code> chunk, and wrap <code>nrow(counts)</code> inside the function <code>comma()</code></p>
+</div>
 <div id="organising-your-data" class="section level2">
 <h2>Organising Your Data</h2>
 <p>So far, we’ve just loaded a file, but in reality many analyses will become complicated with numerous R Markdown files.
@@ -419,11 +435,21 @@ Here we can provide the two patterns of three characters separated by the <code>
         sra_id = str_extract(sample, &quot;SRR[0-9]+&quot;),
         tissue = str_extract(sample, &quot;cbc|skm&quot;)
     )</code></pre>
-<p>Whilst this isn’t the full setup for an RNA-Seq experiment, these are pretty close to my first steps.</p>
+<p>Now we have our metadata, it might be a good idea to summarise this in the plain text parts of your R Markdown and present a table.
+The package <code>pander</code> is very helpful for generating basic html tables.</p>
+<div id="add-pander" class="action">
+<p>Add <code>library(pander)</code> to the packages chunk and execute the chunk to make sure it’s loaded into your interactive session.</p>
+</div>
+<pre class="r"><code>samples %&gt;% 
+    group_by(tissue) %&gt;%
+    tally() %&gt;%
+    pander(caption = &quot;Experimental groups and sample size&quot;)</code></pre>
+<p>Whilst this clearly isn’t the full setup for an RNA-Seq experiment, these are pretty close to my first steps.</p>
 <div id="loading-summary" class="category">
 <ul>
 <li>Load and clean the data in the same process <strong>at the beginning</strong></li>
-<li>Setup the sample metadata directly from the related larger data object, if applicable. Also perform this at the beginning of a workflow</li>
+<li>Setup the sample metadata directly from the related larger data object, if applicable. Also perform this at the beginning of a workflow.</li>
+<li>Write summaries of your data as part of the R Markdown to ensure you have what you think you have, and to simply describe it accurately</li>
 </ul>
 </div>
 </div>

@@ -60,7 +60,7 @@ There's no real need to understand this, but essentially we're checking that tod
 :::
 
 ```{r packages}
-req <- c("here", "tidyverse", "rmarkdown", "BiocManager")
+req <- c("here", "tidyverse", "rmarkdown", "pander")
 needed <- setdiff(req, rownames(installed.packages()))
 if (length(needed)) {
     msg <- sprintf("Couldn't find the package %s. Preparing to install.\n", needed)
@@ -448,6 +448,27 @@ I prefer all output to be in the Console, and all plots to be in the **Plots** p
 You can change this by checking "Chunk Output in Console" in the settings menu for each R Markdown document.
 This can also be set using Global Options if you prefer.
 
+## Adding Plain Text 
+
+Now that we've loaded a file, a good plan might be to explain what we've done and provide some informative output.
+
+::: {#add-text .action}
+After your data import chunk, add:
+
+> Counts were loaded as a `tibble` using `read_tsv()`, for 55450 genes and 8 samples.
+
+:::
+
+These values were obtained by me manually running `dim(counts)` on the object while I wrote this, but we can obtain this data directly from our object.
+
+::: {#start-inline-code .action}
+Change the number 55450 to `` `r knitr::inline_expr("nrow(counts)")` `` and recompile.
+
+Now change the number 8 to `` `r knitr::inline_expr("ncol(counts) - 1")` ``
+:::
+
+If we really wanted to format that nicely, we can add the package `library(scales)` to the `packages` chunk, and wrap `nrow(counts)` inside the function `comma()`
+
 ## Organising Your Data
 
 So far, we've just loaded a file, but in reality many analyses will become complicated with numerous R Markdown files.
@@ -580,12 +601,28 @@ samples <- tibble(
     )
 ```
 
-Whilst this isn't the full setup for an RNA-Seq experiment, these are pretty close to my first steps.
+Now we have our metadata, it might be a good idea to summarise this in the plain text parts of your R Markdown and present a table.
+The package `pander` is very helpful for generating basic html tables.
+
+::: {#add-pander .action}
+Add `library(pander)` to the packages chunk and execute the chunk to make sure it's loaded into your interactive session.
+:::
+
+```{r}
+samples %>% 
+    group_by(tissue) %>%
+    tally() %>%
+    pander(caption = "Experimental groups and sample size")
+```
+
+
+Whilst this clearly isn't the full setup for an RNA-Seq experiment, these are pretty close to my first steps.
 
 :::{#loading-summary .category}
 
 - Load and clean the data in the same process **at the beginning**
-- Setup the sample metadata directly from the related larger data object, if applicable. Also perform this at the beginning of a workflow
+- Setup the sample metadata directly from the related larger data object, if applicable. Also perform this at the beginning of a workflow.
+- Write summaries of your data as part of the R Markdown to ensure you have what you think you have, and to simply describe it accurately
 
 :::
 
