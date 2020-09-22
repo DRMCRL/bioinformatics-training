@@ -124,7 +124,7 @@
                         <em class="fa fa-sun-o"></em>
                         <span class="date">Mon, Sep 21, 2020</span>
                         <em class="fa fa-clock-o"></em>
-                        <span class="reading-time">21-minute read</span>
+                        <span class="reading-time">17-minute read</span>
                     </div>
                 
             </div>
@@ -487,102 +487,6 @@ This is the best way to approach file paths in R.</p>
 <li>Always work in an R Project</li>
 <li>Always organise your directories in a sensible manner</li>
 <li>Always reference the location of files using <code>here::here()</code></li>
-</ul>
-</div>
-</div>
-</div>
-<div id="data-cleaning" class="section level1">
-<h1>Data Cleaning</h1>
-<p>Returning to our data, this data is a little messy:</p>
-<ul>
-<li>We don’t care about the <code>Chr</code>, <code>Start</code>, <code>End</code> and <code>Strand</code> columns</li>
-<li>Column names are cumbersome complete paths to the original <code>bam</code> files.</li>
-</ul>
-<p>Let’s tidy those up, which involves some text and data manipulation.
-To select specific columns, we can use the function <code>select()</code> from the package <code>dplyr</code>, which is part of the core <code>tidyverse</code>.
-Unfortunately many packages have a function called <code>select()</code>, so I always call this explicitly from <code>dplyr</code>.</p>
-<p>In the code below (as a simple example), we’re only selecting the column called <code>Geneid</code></p>
-<pre class="r"><code>dplyr::select(counts, Geneid)</code></pre>
-<p><code>dplyr</code> has a series of helper functions: <code>starts_with()</code>, <code>contains()</code>, <code>any_of()</code>, <code>ends_with()</code> and <code>everything()</code> being some of the most useful.
-Now we’ll add every column that finishes with “bam”.</p>
-<pre class="r"><code>dplyr::select(counts, Geneid, ends_with(&quot;bam&quot;))</code></pre>
-<p>This is essentially what we need, so we could add the following line to our import chunk.</p>
-<pre class="r"><code>counts &lt;- dplyr::select(counts, Geneid, ends_with(&quot;bam&quot;))</code></pre>
-<p><strong>Alternatively, we can use the <code>magrittr</code> (i.e. the pipe) to pass the output of one function to the input of another.</strong></p>
-<pre class="r"><code>fl &lt;- here::here(&quot;data/counts.out&quot;)
-counts &lt;- read_tsv(fl, comment = &quot;#&quot;) %&gt;%
-    dplyr::select(Geneid, ends_with(&quot;bam&quot;))</code></pre>
-<p>This takes the output of <code>read_tsv()</code> (i.e. the tibble returned from the import) and passes it to the input of <code>dplyr::select()</code>.
-This way we’ve removed the irrelevant columns immediately on import.
-<em>I personally prefer performing all modifications at the start so everything is done in a single, clean process and we don’t end up with half-edited versions of objects floating around.</em></p>
-<div id="renaming-columns" class="section level2">
-<h2>Renaming columns</h2>
-<p>We could now individually rename the columns using the function <code>dplyr::rename()</code>, but there’s been an enhancement where we can use <code>rename_all()</code>.
-Let’s test it on the data we have as it stands.</p>
-<pre class="r"><code>dplyr::rename_all(counts, basename)</code></pre>
-<p>This will call the function <code>basename()</code> on all columns, and we can see this in action separately.</p>
-<pre class="r"><code>basename(colnames(counts))</code></pre>
-<p>What <code>basename()</code> does is to remove any file paths from the front of the character strings defined as column names.
-We can now add this directly as part of the import!</p>
-<pre class="r"><code>fl &lt;- here::here(&quot;data/counts.out&quot;)
-counts &lt;- read_tsv(fl, comment = &quot;#&quot;) %&gt;%
-    dplyr::select(Geneid, ends_with(&quot;bam&quot;)) %&gt;%
-    dplyr::rename_all(basename)</code></pre>
-</div>
-<div id="obtaining-sample-metadata" class="section level2">
-<h2>Obtaining Sample Metadata</h2>
-<p>Now we have reasonable looking data, we might like to form a metadata object for our samples, and doing this on the imported object can strongly beneficial as everything will be in the same order.</p>
-<pre class="r"><code>samples &lt;- tibble(
-    sample = colnames(counts)
-) %&gt;%
-    dplyr::filter(sample != &quot;Geneid&quot;) </code></pre>
-<p>This has created a <code>tibble</code> with a single column called sample, which exactly matches the column names in our <code>counts</code> object.
-Clearly, this is only the first step and two other pieces of information we may be interested in are the SRA run id, and the source tissue.</p>
-<p>First, we’ll have a look at the function <code>str_extract()</code> which comes from the core <code>tidyverse</code> package <code>stringr</code> and requires a little knowledge of <em>regular expressions</em>.
-In the following, we’re defining a pattern which <code>str_extract()</code> will look for and “extract” from the string we provide.</p>
-<pre class="r"><code>str_extract(colnames(counts), &quot;SRR[0-9]+&quot;)</code></pre>
-<p>What we’ve requested here is the pattern “SRR” exactly, followed by a number (<code>[0-9]</code>), and we’ve allowed any number of numbers by adding the plus symbol.
-Once the search hits a character that’s not a number the pattern will no longer match, and only the matching portion will be returned.</p>
-<p>An alternative is to look within strings for specific ‘words’ or longer patterns, as alternatives.
-Here we can provide the two patterns of three characters separated by the <code>|</code> which often represents <code>OR</code> in searches.</p>
-<pre class="r"><code>str_extract(colnames(counts), &quot;cbc|skm&quot;)</code></pre>
-<p>Now we’ve seen how <code>str_extract</code> works, we can add two informative columns to our sample metadata using the <code>mutate()</code> function from <code>dplyr</code>.</p>
-<pre class="r"><code>samples &lt;- tibble(
-    sample = colnames(counts)
-) %&gt;%
-    dplyr::filter(sample != &quot;Geneid&quot;) %&gt;%
-    dplyr::mutate(
-        sra_id = str_extract(sample, &quot;SRR[0-9]+&quot;),
-        tissue = str_extract(sample, &quot;cbc|skm&quot;)
-    )</code></pre>
-<p>Finally, we might like to have a better description than cbc or skm to ensure any collaborators understand exactly what we have.</p>
-<pre class="r"><code>samples &lt;- tibble(
-    sample = colnames(counts)
-) %&gt;%
-    dplyr::filter(sample != &quot;Geneid&quot;) %&gt;%
-    dplyr::mutate(
-        sra_id = str_extract(sample, &quot;SRR[0-9]+&quot;),
-        tissue = str_extract(sample, &quot;cbc|skm&quot;),
-        description = case_when(
-            tissue == &quot;cbc&quot; ~ &quot;Cerebellar Cortex&quot;,
-            tissue == &quot;skm&quot; ~ &quot;Skeletal Muscle&quot;
-        )
-    )</code></pre>
-<p>Now we have our metadata, it might be a good idea to summarise this in the plain text parts of your R Markdown and present a table.
-The package <code>pander</code> is very helpful for generating basic html tables.</p>
-<div id="add-pander" class="action">
-<p>Add <code>library(pander)</code> to the packages chunk and execute the chunk to make sure it’s loaded into your interactive session.</p>
-</div>
-<pre class="r"><code>samples %&gt;% 
-    group_by(tissue, description) %&gt;%
-    tally() %&gt;%
-    pander(caption = &quot;Experimental groups and sample size&quot;)</code></pre>
-<p>Whilst this clearly isn’t the full setup for an RNA-Seq experiment, these are pretty close to my first steps.</p>
-<div id="loading-summary" class="category">
-<ul>
-<li>Load and clean the data in the same process <strong>at the beginning</strong></li>
-<li>Setup the sample metadata directly from the related larger data object, if applicable. Also perform this at the beginning of a workflow.</li>
-<li>Write summaries of your data as part of the R Markdown to ensure you have what you think you have, and to simply describe it accurately</li>
 </ul>
 </div>
 </div>
