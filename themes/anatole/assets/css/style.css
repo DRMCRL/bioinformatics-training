@@ -22,7 +22,7 @@ html[data-theme='dark'] {
     --body-color: rgb(169, 169, 179);
     --post-color: rgba(0, 0, 0, 0.44);
     --border-color: rgb(38, 38, 38);
-    --pre-bg-color: rgb(33, 33, 45);
+    --pre-bg-color: rgb(30, 30, 45);
     --nav-text-color: rgb(191, 191, 191);
     --tag-color: rgb(191, 191, 191);
     --blockquote-text-color: #808080;

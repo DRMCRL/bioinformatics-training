@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>stringr on Bioinformatics Training</title>
+    <link>/tags/stringr/</link>
+    <description>Recent content in stringr on Bioinformatics Training</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en</language>
+    <lastBuildDate>Mon, 28 Sep 2020 00:00:00 +0000</lastBuildDate><atom:link href="/tags/stringr/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Working with Text using stringr</title>
+      <link>/post/working-with-text-using-stringr/</link>
+      <pubDate>Mon, 28 Sep 2020 00:00:00 +0000</pubDate>
+      
+      <guid>/post/working-with-text-using-stringr/</guid>
+      <description>Introduction Key Concepts Working with text is one of the most common processes in R and we often take it for granted.</description>
+    </item>
+    
+  </channel>
+</rss>
